@@ -1,0 +1,4 @@
+[0m[1mdata.aws_availability_zones.available: Reading...[0m[0m
+[0m[1mdata.aws_iam_policy_document.ecs_task_execution_role: Reading...[0m[0m
+[0m[1mdata.aws_iam_policy_document.ecs_task_execution_role: Read complete after 0s [id=320642683][0m
+[0m[1mdata.aws_availability_zones.available: Read complete after 0s [id=us-east-1][0m
