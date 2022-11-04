@@ -14,10 +14,28 @@ data "aws_iam_policy_document" "ecs_task_execution_role" {
   }
 }
 
+resource "aws_iam_policy" "iam_policy_create_ecs_task" {
+  name   = "ecs-task-policy"
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect   = "Allow"
+        Action  = ["logs:CreateLogGroup"]
+        Resource = "*"
+      }   
+    ]
+  })
+}
+
 resource "aws_iam_role" "ecs_task_execution_role" {
   name = "ecs-task-exec-role"
 
   assume_role_policy = data.aws_iam_policy_document.ecs_task_execution_role.json
+
+  inline_policy {
+    name = "iam_policy_create_log_group"
+  }
 }
 
 resource "aws_iam_role" "ecs_task_role" {
@@ -26,30 +44,18 @@ resource "aws_iam_role" "ecs_task_role" {
   assume_role_policy = data.aws_iam_policy_document.ecs_task_execution_role.json
 }
 
-resource "aws_iam_role_policy_attachment" "ecs-task-execution-role-policy-attachment" {
-  role       = aws_iam_role.ecs_task_execution_role.name
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+locals {
+  ecs_task_iam_policies = [
+    "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy",
+    "arn:aws:iam::aws:policy/AmazonElasticContainerRegistryPublicReadOnly",
+    "${aws_iam_policy.iam_policy_create_ecs_task.arn}"
+  ]
 }
-/*
-resource "aws_iam_role_policy" "password_policy_secretsmanager" {
-  name = "password-policy-secretsmanager"
-  role = aws_iam_role.ecs_task_execution_role.id
 
-  policy = <<-EOF
-  {
-    "Version": "2012-10-17",
-    "Statement": [
-      {
-        "Action": [
-          "secretsmanager:GetSecretValue"
-        ],
-        "Effect": "Allow",
-        "Resource": [
-          "${aws_secretsmanager_secret.rds_credentials.arn}"
-        ]
-      }
-    ]
-  }
-  EOF
+resource "aws_iam_role_policy_attachment" "ecs-task-execution-role-policy-attachment" {
+  count = length(local.ecs_task_iam_policies)
+  role       = aws_iam_role.ecs_task_execution_role.name
+  policy_arn = local.ecs_task_iam_policies[count.index]
+
+  depends_on = [aws_iam_policy.iam_policy_create_ecs_task]
 }
-*/

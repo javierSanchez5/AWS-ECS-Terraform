@@ -1,5 +1,5 @@
-resource "aws_cloudwatch_log_group" "testapp_log_group" {
-  name              = "/ecs/testapp"
+resource "aws_cloudwatch_log_group" "app_log_group" {
+  name              = "/ecs/app"
   retention_in_days = 30
 
   tags = {
@@ -9,5 +9,5 @@ resource "aws_cloudwatch_log_group" "testapp_log_group" {
 
 resource "aws_cloudwatch_log_stream" "myapp_log_stream" {
   name           = "test-log-stream"
-  log_group_name = aws_cloudwatch_log_group.testapp_log_group.name
+  log_group_name = aws_cloudwatch_log_group.app_log_group.name
 }

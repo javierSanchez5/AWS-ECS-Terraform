@@ -1,0 +1,44 @@
+[
+    {
+        "name": "challenge-node-container",
+        "image": "072834578119.dkr.ecr.us-east-1.amazonaws.com/frontend",
+        "essential": true,
+        "environment": [
+            {
+                "name": "RDS_HOSTNAME",
+                "value": "${dbendpoint}"}
+                ,
+                {
+                    "name": "RDS_USERNAME",
+                    "value": "${username}"
+                },
+                {
+                    "name": "RDS_PASSWORD",
+                    "value": "${pass}"
+                },
+                {
+                    "name": "RDS_PORT",
+                    "value": "${port}"
+                },
+                {
+                    "name": "RDS_DATABASE",
+                    "value": "${dbname}"
+                }
+            ],
+            "portMappings": [
+                {   "protocol": "tcp",
+                    "containerPort": 3000,
+                    "hostPort": 3000
+                }
+            ],
+            "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                    "awslogs-region": "us-east-1",
+                    "awslogs-group": "ecs/app",
+                    "awslogs-create-group": "true",
+                    "awslogs-stream-prefix": "challenge"
+                }
+            }
+        }
+    ]

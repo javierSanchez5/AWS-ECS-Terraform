@@ -1,6 +1,17 @@
-
 resource "aws_ecs_cluster" "main" {
   name = "challenge-ecs-cluster-"
+}
+
+data "template_file" "app" {
+  template = file("task_definition.json")
+
+  vars = {
+   dbendpoint = aws_db_instance.challenge_dbi.address
+   username = "postgresAdmin"
+   pass = "xstrrngDrSp"
+   port = "5432"
+   dbname = "test_ead"
+  }
 }
 
 resource "aws_ecs_task_definition" "main" {
@@ -11,27 +22,11 @@ resource "aws_ecs_task_definition" "main" {
   memory                   = 2048
   execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
   task_role_arn            = aws_iam_role.ecs_task_role.arn
-  container_definitions = jsonencode([{
-    name      = "challenge-node-container"
-    image     = "072834578119.dkr.ecr.us-east-1.amazonaws.com/frontend:v0.10.0"
-    essential = true
-    enviroment = [{
-      RDS_HOSTNAME = "${aws_db_instance.challenge_dbi.endpoint}"
-      RDS_USERNAME = "postgresAdmin"
-      RDS_PASSWORD = "xstrongDrSp"
-      RDS_PORT     = "5432"
-      RDS_DATABASE = "test_ead"
-    }]
-    portMappings = [{
-      //protocol      = "tcp"
-      containerPort = 3000
-      hostPort = 3000
-    }]
-  }])
+  container_definitions = data.template_file.app.rendered
 }
 
 resource "aws_ecs_service" "main" {
-  name                               = "challenge-ecs-service-"
+  name                               = "ECS_SERVICE"
   cluster                            = aws_ecs_cluster.main.id
   task_definition                    = aws_ecs_task_definition.main.arn
   desired_count                      = 2
@@ -43,7 +38,7 @@ resource "aws_ecs_service" "main" {
   network_configuration {
     security_groups  = [aws_security_group.ecs_tasks.id]
     subnets          = aws_subnet.private_subnets.*.id
-    assign_public_ip = true
+    assign_public_ip = false
   }
 
   load_balancer {
@@ -52,15 +47,9 @@ resource "aws_ecs_service" "main" {
     container_port   = 3000
   }
 
-  lifecycle {
-    ignore_changes = [task_definition, desired_count]
-  }
 
   depends_on = [ 
     aws_alb_listener.http,
     aws_db_instance.challenge_dbi
   ]
 }
-
-
-
