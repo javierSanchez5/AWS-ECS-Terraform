@@ -27,7 +27,7 @@ ECS can scale microservices
 
 ### Database RDS postgres
 Since RDS is a managed service, RDS performs the database scaling process
-![alt text](infraestructure.png)
+![alt text](infraestructure(1).png)
 
 ## Environments
 - Dev
