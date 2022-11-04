@@ -30,6 +30,4 @@ Since RDS is a managed service, RDS performs the database scaling process
 ![alt text](infraestructure(1).png)
 
 ## Environments
-- Dev
-- stg
-- prod
+![env](github.png)
