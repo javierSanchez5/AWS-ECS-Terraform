@@ -1,6 +1,8 @@
 # Infrastructure
 
 ## Description
+Infrastructure developed via Terraform
+
 ### Network
 The proposed networking architecture in the AWS cloud consists of a VPC with an Internet
 Gateway to allow access to our application. Within the VPC we will have two availability
